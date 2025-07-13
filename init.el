@@ -10,14 +10,15 @@
 ;;; PACKAGES ;;;
 ;;;;;;;;;;;;;;;;
 
-(setq package-check-signature nil)
+;; (setq package-check-signature nil)
 
 (require 'package)
 (add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
  
-;; (package-install 'gnu-elpa-keyring-update)
+;; (use-package gnu-elpa-keyring-update
+;;   :ensure t)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
@@ -112,8 +113,8 @@
   :ensure t
   :init (ivy-mode))
 
-(setopt ivy-use-virtual-buffers t)
-(setopt ivy-count-format "(%d/%d) ")
+(setq ivy-use-virtual-buffers t)
+(setq ivy-count-format "(%d/%d) ")
 
 ;; Trying this for a while and seeing what breaks
 
