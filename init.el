@@ -11,14 +11,17 @@
 ;;;;;;;;;;;;;;;;
 
 (require 'package)
-(add-to-list 'package-archives
-			 '("melpa" . "https://melpa.org/packages/")
-			 '("gnu" . "https://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
-
-(require 'use-package)
-(eval-when-compile
-  (require 'use-package))
+ 
+;; (package-install 'gnu-elpa-keyring-update)
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(eval-and-compile
+   (setq use-package-always-ensure t
+         use-package-expand-minimally t))
 
 (use-package tmux-pane
   :ensure t
