@@ -45,6 +45,8 @@
 
 (unless window-system
   (xterm-mouse-mode 1))
+(use-package vterm
+  :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;
 ;;; KEYBINDINGS ;;;
@@ -82,10 +84,10 @@
 ;; (global-set-key (kbd "M-l") 'windmove-right)
 
 ;;; PROJECT MANAGEMENT (I'm going to use project.el for a while)
-;; (use-package projectile
-;;   :ensure t
-;;   :config (projectile-mode +1)
-;;   :bind ("C-c p" . 'projectile-command-map))
+(use-package projectile
+  :ensure t
+  :config (projectile-mode +1)
+  :bind ("C-c p" . 'projectile-command-map))
 
 ;; (use-package treemacs
 ;;   :ensure t
@@ -158,10 +160,13 @@
 (use-package eglot
   :ensure t
   :hook ((c-mode . eglot-ensure)
-         (c++-mode . eglot-ensure))
+         (c++-mode . eglot-ensure)
+		 (python-mode . eglot-ensure))
   :config
   (add-to-list 'eglot-server-programs
-               '((c++-mode c-mode) . ("clangd"))))
+               '((c++-mode c-mode) . ("clangd")))
+  (add-to-list 'eglot-server-programs
+               '(python-mode . ("pylsp"))))
 
 (use-package company
   :ensure t
@@ -179,79 +184,14 @@
   ;; as well
   (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
-;; (use-package lsp-mode
-;;   :ensure t
-;;   :init
-;;   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-;;   (setq lsp-keymap-prefix "C-c l")
-;;   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-;;          (python-mode . lsp)
-;; 		 (c-mode . lsp)
-;; 		 ;; (c++-mode . lsp)
-;;          ;; if you want which-key integration
-;;          (lsp-mode . lsp-enable-which-key-integration))
-;;   :commands lsp)
-
-;; (setq gc-cons-threshold (* 100 1024 1024)
-;;       read-process-output-max (* 1024 1024)
-;;       treemacs-space-between-root-nodes nil
-;;       company-idle-delay 0.0
-;;       company-minimum-prefix-length 1
-;;       lsp-idle-delay 0.1)  ;; clangd is fast
-;; ;; optionally
-;; (use-package lsp-ui
-;;   :ensure t
-;;   :commands lsp-ui-mode)
-;; (use-package flycheck
-;;   :ensure t
-;;   :config
-;;   (global-flycheck-mode)
-;;   :hook (
-;; 		 (c++-mode .
-;; 				   (lambda ()
-;; 					 (setq lsp-diagnostics-package nil)
-;; 					 (flycheck-select-checker 'c/c++-gcc)))))
-;; ;; if you are ivy user
-;; (use-package lsp-ivy
-;;   :ensure t
-;;   :commands lsp-ivy-workspace-symbol)
-;; ;; company
-;; (use-package company
-;;   :ensure t)
-;; ;; treemacs
-;; (use-package lsp-treemacs
-;;   :ensure t
-;;   :commands lsp-treemacs-errors-list)
-;; ;; optionally if you want to use debugger
-;; (use-package dap-mode
-;;   :ensure t
-;;   :config
-;;   (require 'dap-lldb)
-
-;;   (setq dap-lldb-debug-program '("/usr/bin/lldb-vscode"))
-;;   (setq dap-lldb-debugged-program-function (lambda () (read-file-name "Select file to debug.")))
-
-;;   (dap-register-debug-template
-;;    "C++ LLDB dap"
-;;    (list :type "lldb-vscode"
-;; 		 :cwd nil
-;; 		 :args nil
-;; 		 :request "launch"
-;; 		 :program nil))
-
-;;    (defun dap-debug-create-or-edit-json-template ()
-;;     "Edit the C++ debugging configuration or create + edit if none exists yet."
-;;     (interactive)
-;;     (let ((filename (concat (lsp-workspace-root) "/launch.json"))
-;; 	  (default "~/.emacs.d/default-launch.json"))
-;;       (unless (file-exists-p filename)
-;; 	(copy-file default filename))
-;;       (find-file-existing filename))))
-;; ;; optional if you want which-key integration
 (use-package which-key
   :ensure t
   :config
     (which-key-mode))
+
+
+(use-package claude-code
+  :ensure t)
 
 ;;;;;;;;;;;;;;;;
 ;;; ORG-MODE ;;;
@@ -280,12 +220,12 @@
       '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)")))
 (setq org-use-fast-todo-selection t)
 
-(defun log-todo-next-creation-date (&rest ignore)
-  "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
-  (when (and (string= (org-get-todo-state) "NEXT")
-             (not (org-entry-get nil "ACTIVATED")))
-    (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
-(add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
+;; (defun log-todo-next-creation-date (&rest ignore)
+;;   "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+;;   (when (and (string= (org-get-todo-state) "NEXT")
+;;              (not (org-entry-get nil "ACTIVATED")))
+;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+;; ;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 
 (global-set-key (kbd "C-c a") 'org-agenda)
 (global-set-key (kbd "C-c l") 'org-store-link)
@@ -316,7 +256,7 @@
 ;;                 ((org-agenda-overriding-header "\nCompleted today\n")))))))
 
 ;; Clocking
-(setq org-log-done 'time)
+;; (setq org-log-done 'time)
 
 
 ;; code blocks
@@ -349,6 +289,14 @@
   :config
   (xclip-mode 1))
 
+;;; LLVM-MODE
+(setq load-path
+      (cons (expand-file-name "~/Documents/compilers-research/llvm-project/utils/emacs/") load-path))
+(require 'llvm-mode)
+;; (require 'llvm-mir-mode)
+
+
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -363,3 +311,5 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+
