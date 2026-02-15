@@ -136,9 +136,9 @@
 
 
 ;;; LSP
-(setq load-path
-      (cons (expand-file-name "~/tank/mojo-experiments/mojo-hl/") load-path))
-(require 'mojo-mode)
+;; (setq load-path
+;;       (cons (expand-file-name "~/tank/mojo-experiments/mojo-hl/") load-path))
+;; (require 'mojo-mode)
 
 (use-package eglot
   :ensure t
@@ -181,10 +181,10 @@
   :config
     (which-key-mode))
 
-(setq load-path
-      (cons (expand-file-name "~/tank/llvm-project/llvm/utils/emacs/") load-path))
-(require 'llvm-mode)
-(require 'llvm-mir-mode)
+;; (setq load-path
+;;       (cons (expand-file-name "~/tank/llvm-project/llvm/utils/emacs/") load-path))
+;; (require 'llvm-mode)
+;; (require 'llvm-mir-mode)
 
 ;;;;;;;;;;;;;;;;
 ;;; ORG-MODE ;;;
@@ -254,7 +254,7 @@
   :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
   :config
   (claude-code-ide-emacs-tools-setup)
-  (setq claude-code-ide-terminal-backend 'eat)) ; Optionally enable Emacs MCP tools
+  (setq claude-code-ide-terminal-backend 'vterm)) ; Optionally enable Emacs MCP tools
 
 
 (custom-set-variables
