@@ -1,4 +1,3 @@
-;; TODO(akash)
 ;; tmux setup
 ;; Language support (modes for Python, JavaScript, TypeScript, Go, Rust, Racket, LaTex)
 ;; RSS feeds (blogposts, hnrss, etc.)
@@ -10,29 +9,17 @@
 ;;; PACKAGES ;;;
 ;;;;;;;;;;;;;;;;
 
-;; (setq package-check-signature nil)
 
 (require 'package)
-(add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(package-initialize)
- 
-;; (use-package gnu-elpa-keyring-update
-;;   :ensure t)
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(eval-and-compile
-   (setq use-package-always-ensure t
-         use-package-expand-minimally t))
 
 (use-package tmux-pane
-  :ensure t
-  :bind (("M-i" . tmux-pane-omni-window-up)
-         ("M-j" . tmux-pane-omni-window-left)
-         ("M-k" . tmux-pane-omni-window-down)
-         ("M-l" . tmux-pane-omni-window-right)))
-  
+ :vc (:url "https://github.com/laishulu/emacs-tmux-pane.git")
+ ;; :ensure t
+ :bind (("M-i" . tmux-pane-omni-window-up)
+        ("M-j" . tmux-pane-omni-window-left)
+        ("M-k" . tmux-pane-omni-window-down)
+        ("M-l" . tmux-pane-omni-window-right)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; PERSONAL PREFERENCES ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -42,11 +29,6 @@
 (setq make-backup-files nil)
 
 (setq-default tab-width 4)
-
-(unless window-system
-  (xterm-mouse-mode 1))
-(use-package vterm
-  :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;
 ;;; KEYBINDINGS ;;;
@@ -78,10 +60,10 @@
 
 
 
-;; (global-set-key (kbd "M-i") 'windmove-up)
-;; (global-set-key (kbd "M-j") 'windmove-left)
-;; (global-set-key (kbd "M-k") 'windmove-down)
-;; (global-set-key (kbd "M-l") 'windmove-right)
+(global-set-key (kbd "M-i") 'windmove-up)
+(global-set-key (kbd "M-j") 'windmove-left)
+(global-set-key (kbd "M-k") 'windmove-down)
+(global-set-key (kbd "M-l") 'windmove-right)
 
 ;;; PROJECT MANAGEMENT (I'm going to use project.el for a while)
 (use-package projectile
@@ -100,13 +82,11 @@
 ;;; MAGIT ;;;
 ;;;;;;;;;;;;;
 
-(use-package compat
-  :ensure t)
 (use-package magit
   :ensure t
   :bind ("C-c i" . magit-status))
 
-;;; IVY
+;; ;;; IVY
 (use-package counsel
   :ensure t
   :init (counsel-mode))
@@ -135,10 +115,10 @@
 (keymap-global-set "C-c v" #'ivy-push-view)
 (keymap-global-set "C-c V" #'ivy-pop-view)
 
-;; (keymap-global-set "C-c c" #'counsel-compile)
-;; (keymap-global-set "C-c g" #'counsel-git)
-;; (keymap-global-set "C-c j" #'counsel-git-grep)
-;; (keymap-global-set "C-c L" #'counsel-git-log)
+(keymap-global-set "C-c c" #'counsel-compile)
+(keymap-global-set "C-c g" #'counsel-git)
+(keymap-global-set "C-c j" #'counsel-git-grep)
+(keymap-global-set "C-c L" #'counsel-git-log)
 (keymap-global-set "C-c k" #'counsel-rg)
 (keymap-global-set "C-c m" #'counsel-linux-app)
 (keymap-global-set "C-c n" #'counsel-fzf)
@@ -152,46 +132,59 @@
 (keymap-global-set "C-c d" #'counsel-descbinds)
 (keymap-global-set "C-c o" #'counsel-outline)
 (keymap-global-set "C-c t" #'counsel-load-theme)
-;; (keymap-global-set "C-c F" #'counsel-org-file)
+(keymap-global-set "C-c F" #'counsel-org-file)
 
 
 ;;; LSP
+(setq load-path
+      (cons (expand-file-name "~/tank/mojo-experiments/mojo-hl/") load-path))
+(require 'mojo-mode)
 
 (use-package eglot
   :ensure t
   :hook ((c-mode . eglot-ensure)
-         (c++-mode . eglot-ensure)
-		 (python-mode . eglot-ensure))
+         ;; (c++-mode . eglot-ensure)
+         (mojo-mode . eglot-ensure)
+         (python-mode . eglot-ensure))
   :config
   (add-to-list 'eglot-server-programs
-               '((c++-mode c-mode) . ("clangd")))
+               '((c-mode) . ("clangd")))
   (add-to-list 'eglot-server-programs
-               '(python-mode . ("pylsp"))))
+               '((python-mode) . ("pylsp")))
+  (add-to-list 'eglot-server-programs
+               '((mojo-mode) . ("mojo-lsp-server"))))
 
 (use-package company
   :ensure t
   :hook (after-init . global-company-mode))
 
-(use-package ivy-xref
-  :ensure t
-  :init
-  ;; xref initialization is different in Emacs 27 - there are two different
-  ;; variables which can be set rather than just one
-  (when (>= emacs-major-version 27)
-    (setq xref-show-definitions-function #'ivy-xref-show-defs))
-  ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
-  ;; commands other than xref-find-definitions (e.g. project-find-regexp)
-  ;; as well
-  (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+;; (use-package ivy-xref
+;;   :ensure t
+;;   :init
+;;   ;; xref initialization is different in Emacs 27 - there are two different
+;;   ;; variables which can be set rather than just one
+;;   (when (>= emacs-major-version 27)
+;;     (setq xref-show-definitions-function #'ivy-xref-show-defs))
+;;   ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
+;;   ;; commands other than xref-find-definitions (e.g. project-find-regexp)
+;;   ;; as well
+;;   (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+
+
+;; ;; company
+;; (use-package company
+;;   :ensure t)
+;; ;; treemacs
 
 (use-package which-key
   :ensure t
   :config
     (which-key-mode))
 
-
-(use-package claude-code
-  :ensure t)
+(setq load-path
+      (cons (expand-file-name "~/tank/llvm-project/llvm/utils/emacs/") load-path))
+(require 'llvm-mode)
+(require 'llvm-mir-mode)
 
 ;;;;;;;;;;;;;;;;
 ;;; ORG-MODE ;;;
@@ -203,12 +196,12 @@
 (setq org-capture-templates
       (quote (("t" "todo" entry (file "inbox.org")
                "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-			  ("m" "Meeting" entry (file+headline "inbox.org")
-			   ,(concat "* %? :meeting:\n"
-						"<%<%Y-%m-%d %a %H:00>>"))
-			  ("n" "Note" entry  (file "notes.org")
-			   ,(concat "* Note (%a)\n"
-						"/Entered on/ %U\n" "\n" "%?")))))
+              ("m" "Meeting" entry (file+headline "inbox.org")
+               ,(concat "* %? :meeting:\n"
+                        "<%<%Y-%m-%d %a %H:00>>"))
+              ("n" "Note" entry  (file "notes.org")
+               ,(concat "* Note (%a)\n"
+                        "/Entered on/ %U\n" "\n" "%?")))))
 (global-set-key (kbd "C-c c") 'org-capture)
 ;; Refile
 (setq org-refile-targets (quote ((org-agenda-files :maxlevel . 9))))
@@ -220,43 +213,18 @@
       '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|" "DONE(d)")))
 (setq org-use-fast-todo-selection t)
 
-;; (defun log-todo-next-creation-date (&rest ignore)
-;;   "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
-;;   (when (and (string= (org-get-todo-state) "NEXT")
-;;              (not (org-entry-get nil "ACTIVATED")))
-;;     (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
-;; ;; (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
+(defun log-todo-next-creation-date (&rest ignore)
+  "Log NEXT creation time in the property drawer under the key 'ACTIVATED'"
+  (when (and (string= (org-get-todo-state) "NEXT")
+             (not (org-entry-get nil "ACTIVATED")))
+    (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
+(add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 
 (global-set-key (kbd "C-c a") 'org-agenda)
 (global-set-key (kbd "C-c l") 'org-store-link)
-;; (global-set-key (kbd "C-c b") 'org-switchb)
-
-;; (setq org-agenda-custom-commands
-;;       '(("g" "Get Things Done (GTD)"
-;;          ((agenda ""
-;;                   ((org-agenda-skip-function
-;;                     '(org-agenda-skip-entry-if 'deadline))
-;;                    (org-deadline-warning-days 0)))
-;;           (todo "NEXT"
-;;                 ((org-agenda-skip-function
-;;                   '(org-agenda-skip-entry-if 'deadline))
-;;                  (org-agenda-prefix-format "  %i %-12:c [%e] ")
-;;                  (org-agenda-overriding-header "\nTasks\n")))
-;;           (agenda nil
-;;                   ((org-agenda-entry-types '(:deadline))
-;;                    (org-agenda-format-date "")
-;;                    (org-deadline-warning-days 7)
-;;                    (org-agenda-skip-function
-;;                     '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
-;;                    (org-agenda-overriding-header "\nDeadlines")))
-;;           (tags-todo "inbox"
-;;                      ((org-agenda-prefix-format "  %?-12t% s")
-;;                       (org-agenda-overriding-header "\nInbox\n")))
-;;           (tags "CLOSED>=\"<today>\""
-;;                 ((org-agenda-overriding-header "\nCompleted today\n")))))))
 
 ;; Clocking
-;; (setq org-log-done 'time)
+(setq org-log-done 'time)
 
 
 ;; code blocks
@@ -267,34 +235,26 @@
    (C . t)))
 (setq org-confirm-babel-evaluate nil)
 
-
-
-;; (use-package org-pomodoro
-;;   :after org
-;;   :bind (("C-c p" . org-pomodoro))
-;;   :config
-;;   (setq org-pomodoro-length 50               ;; Pomodoro duration in minutes
-;;         org-pomodoro-short-break-length 10   ;; Short break duration
-;;         org-pomodoro-long-break-length 20    ;; Long break duration
-
-;;         org-pomodoro-manual-break t          ;; Manual break start (optional, see below)
-;;         org-pomodoro-clock-break t           ;; Breaks are clocked (shows up in org time tracking)
-;;         org-pomodoro-ask-upon-killing t      ;; Prompt when killing a pomodoro early
-;;         org-pomodoro-keep-killed-time t      ;; Keep time even if Pomodoro is killed
-;; 		))
-
 ;; copy-paste
 (use-package xclip
   :ensure t
   :config
   (xclip-mode 1))
 
-;;; LLVM-MODE
-(setq load-path
-      (cons (expand-file-name "~/Documents/compilers-research/llvm-project/utils/emacs/") load-path))
-(require 'llvm-mode)
-;; (require 'llvm-mir-mode)
+(setq custom-safe-themes t)
+(use-package zenburn-theme
+  :ensure t
+  :config
+  (load-theme 'zenburn))
 
+(winner-mode)
+
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+  :config
+  (claude-code-ide-emacs-tools-setup)
+  (setq claude-code-ide-terminal-backend 'eat)) ; Optionally enable Emacs MCP tools
 
 
 (custom-set-variables
@@ -302,14 +262,11 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files
-   '("~/Documents/pkm/life.org" "/home/akash-deo/Documents/pkm/inbox.org"))
- '(package-selected-packages '(projectile pdf-tools xclip)))
+ '(package-selected-packages nil)
+ '(package-vc-selected-packages '((counsel :url "https://github.com/abo-abo/swiper.git"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-
