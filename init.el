@@ -11,10 +11,11 @@
 
 
 (require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 
 (use-package tmux-pane
- :vc (:url "https://github.com/laishulu/emacs-tmux-pane.git")
- ;; :ensure t
+ ;; :vc (:url "https://github.com/laishulu/emacs-tmux-pane.git")
+ :ensure t
  :bind (("M-i" . tmux-pane-omni-window-up)
         ("M-j" . tmux-pane-omni-window-left)
         ("M-k" . tmux-pane-omni-window-down)
@@ -248,6 +249,9 @@
   (load-theme 'zenburn))
 
 (winner-mode)
+
+(use-package vterm
+  :ensure t)
 
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
