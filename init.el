@@ -50,6 +50,8 @@
 
 (setq-default tab-width 4)
 
+(global-eldoc-mode -1)
+
 ;;;;;;;;;;;;;;;;;;;
 ;;; KEYBINDINGS ;;;
 ;;;;;;;;;;;;;;;;;;;
@@ -162,16 +164,28 @@
 ;;       (cons (expand-file-name "~/tank/mojo-experiments/mojo-hl/") load-path))
 ;; (require 'mojo-mode)
 
+(use-package js2-mode
+  :mode "\\.js\\'")
+
+(use-package web-mode
+  :mode ("\\.html\\'" "\\.css\\'"))
+
 (use-package eglot
   :hook ((c-mode . eglot-ensure)
-         ;; (c++-mode . eglot-ensure)
-         (mojo-mode . eglot-ensure)
-         (python-mode . eglot-ensure))
+         (c++-mode . eglot-ensure)
+         (python-mode . eglot-ensure)
+         (js2-mode . eglot-ensure)
+         (web-mode . eglot-ensure)
+         (mojo-mode . eglot-ensure))
   :config
   (add-to-list 'eglot-server-programs
-               '((c-mode) . ("clangd")))
+               '((c-mode c++-mode) . ("clangd")))
   (add-to-list 'eglot-server-programs
                '((python-mode) . ("pylsp")))
+  (add-to-list 'eglot-server-programs
+               '((js2-mode) . ("typescript-language-server" "--stdio")))
+  (add-to-list 'eglot-server-programs
+               '(web-mode . ("vscode-html-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs
                '((mojo-mode) . ("mojo-lsp-server"))))
 
