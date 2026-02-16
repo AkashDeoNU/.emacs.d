@@ -52,6 +52,9 @@
 
 (global-eldoc-mode -1)
 
+(global-set-key (kbd "C-x <") 'flymake-goto-prev-error)
+(global-set-key (kbd "C-x >") 'flymake-goto-next-error)
+
 ;;;;;;;;;;;;;;;;;;;
 ;;; KEYBINDINGS ;;;
 ;;;;;;;;;;;;;;;;;;;
@@ -187,7 +190,8 @@
   (add-to-list 'eglot-server-programs
                '(web-mode . ("vscode-html-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs
-               '((mojo-mode) . ("mojo-lsp-server"))))
+               '((mojo-mode) . ("mojo-lsp-server")))
+  (add-hook 'eglot-managed-mode-hook (lambda () (eldoc-mode -1))))
 
 (use-package company
   :hook (after-init . global-company-mode))
