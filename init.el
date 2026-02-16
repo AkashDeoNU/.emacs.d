@@ -67,17 +67,24 @@
 (global-set-key (kbd "M-l") 'windmove-right)
 
 ;;; PROJECT MANAGEMENT (I'm going to use project.el for a while)
-(use-package projectile
-  :ensure t
-  :config (projectile-mode +1)
-  :bind ("C-c p" . 'projectile-command-map))
-
-;; (use-package treemacs
+;; (use-package projectile
 ;;   :ensure t
-;;   :bind ("C-c t" . 'treemacs))
+;;   :config (projectile-mode +1)
+;;   :bind ("C-c p" . 'projectile-command-map))
 
-;; (use-package treemacs-projectile
-;;   :ensure t)
+(defun akash/auto-remember-project ()
+  "Auto-register the current project with project.el."
+  (when-let ((pr (project-current)))
+    (project-remember-project pr)))
+(add-hook 'find-file-hook #'akash/auto-remember-project)
+
+(use-package treemacs
+  :ensure t
+  :config
+  (setq treemacs-width 30
+        treemacs-is-never-other-window t)  ; M-j/l won't jump into treemacs
+  :bind (("C-c e" . treemacs-select-window)
+         ("C-c E" . treemacs-display-current-project-exclusively)))
 
 ;;;;;;;;;;;;;
 ;;; MAGIT ;;;
@@ -255,7 +262,7 @@
 
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+  :bind ("C-c '" . claude-code-ide-menu) ; Set your favorite keybinding
   :config
   (claude-code-ide-emacs-tools-setup)
   (setq claude-code-ide-terminal-backend 'vterm)) ; Optionally enable Emacs MCP tools
