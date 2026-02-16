@@ -10,12 +10,31 @@
 ;;;;;;;;;;;;;;;;
 
 
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; Bootstrap straight.el
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+;; All use-package declarations will use straight.el by default
+(setq straight-use-package-by-default t)
+
+;; Install use-package via straight
+(straight-use-package 'use-package)
 
 (use-package tmux-pane
  ;; :vc (:url "https://github.com/laishulu/emacs-tmux-pane.git")
- :ensure t
  :bind (("M-i" . tmux-pane-omni-window-up)
         ("M-j" . tmux-pane-omni-window-left)
         ("M-k" . tmux-pane-omni-window-down)
@@ -68,7 +87,6 @@
 
 ;;; PROJECT MANAGEMENT (I'm going to use project.el for a while)
 ;; (use-package projectile
-;;   :ensure t
 ;;   :config (projectile-mode +1)
 ;;   :bind ("C-c p" . 'projectile-command-map))
 
@@ -79,7 +97,6 @@
 (add-hook 'find-file-hook #'akash/auto-remember-project)
 
 (use-package treemacs
-  :ensure t
   :config
   (setq treemacs-width 30
         treemacs-is-never-other-window t)  ; M-j/l won't jump into treemacs
@@ -91,16 +108,13 @@
 ;;;;;;;;;;;;;
 
 (use-package magit
-  :ensure t
   :bind ("C-c i" . magit-status))
 
 ;; ;;; IVY
 (use-package counsel
-  :ensure t
   :init (counsel-mode))
 
 (use-package ivy
-  :ensure t
   :init (ivy-mode))
 
 (setq ivy-use-virtual-buffers t)
@@ -149,7 +163,6 @@
 ;; (require 'mojo-mode)
 
 (use-package eglot
-  :ensure t
   :hook ((c-mode . eglot-ensure)
          ;; (c++-mode . eglot-ensure)
          (mojo-mode . eglot-ensure)
@@ -163,7 +176,6 @@
                '((mojo-mode) . ("mojo-lsp-server"))))
 
 (use-package company
-  :ensure t
   :hook (after-init . global-company-mode))
 
 ;; (use-package ivy-xref
@@ -185,7 +197,6 @@
 ;; ;; treemacs
 
 (use-package which-key
-  :ensure t
   :config
     (which-key-mode))
 
@@ -245,23 +256,20 @@
 
 ;; copy-paste
 (use-package xclip
-  :ensure t
   :config
   (xclip-mode 1))
 
 (setq custom-safe-themes t)
 (use-package zenburn-theme
-  :ensure t
   :config
   (load-theme 'zenburn))
 
 (winner-mode)
 
-(use-package vterm
-  :ensure t)
+(use-package vterm)
 
 (use-package claude-code-ide
-  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :straight (:host github :repo "manzaltu/claude-code-ide.el")
   :bind ("C-c '" . claude-code-ide-menu) ; Set your favorite keybinding
   :config
   (claude-code-ide-emacs-tools-setup)
@@ -273,8 +281,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil)
- '(package-vc-selected-packages '((counsel :url "https://github.com/abo-abo/swiper.git"))))
+ )
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
