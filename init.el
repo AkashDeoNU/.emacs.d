@@ -46,6 +46,8 @@
 
 (global-display-line-numbers-mode)
 
+(global-visual-line-mode)
+
 (setq make-backup-files nil)
 
 (setq-default tab-width 4)
@@ -283,14 +285,14 @@
 
 (winner-mode)
 
-(use-package vterm)
+(use-package eat)
 
 (use-package claude-code-ide
   :straight (:host github :repo "manzaltu/claude-code-ide.el")
   :bind ("C-c '" . claude-code-ide-menu) ; Set your favorite keybinding
   :config
   (claude-code-ide-emacs-tools-setup)
-  (setq claude-code-ide-terminal-backend 'vterm)) ; Optionally enable Emacs MCP tools
+  (setq claude-code-ide-terminal-backend 'eat)) ; Optionally enable Emacs MCP tools
 
 
 (custom-set-variables
