@@ -289,7 +289,32 @@
 
 (winner-mode)
 
-(use-package eat)
+;; Eat windmove helpers: switch to emacs mode before navigating away
+(defun akash/eat-windmove-up ()
+  (interactive) (eat-emacs-mode) (windmove-up))
+(defun akash/eat-windmove-down ()
+  (interactive) (eat-emacs-mode) (windmove-down))
+(defun akash/eat-windmove-left ()
+  (interactive) (eat-emacs-mode) (windmove-left))
+(defun akash/eat-windmove-right ()
+  (interactive) (eat-emacs-mode) (windmove-right))
+
+(use-package eat
+  :config
+  ;; Bind M-i/j/k/l in char and semi-char mode so they escape the terminal
+  (dolist (map (list eat-char-mode-map eat-semi-char-mode-map))
+    (define-key map (kbd "M-i") #'akash/eat-windmove-up)
+    (define-key map (kbd "M-j") #'akash/eat-windmove-left)
+    (define-key map (kbd "M-k") #'akash/eat-windmove-down)
+    (define-key map (kbd "M-l") #'akash/eat-windmove-right))
+  ;; Auto-activate semi-char mode when an eat window is selected.
+  ;; Semi-char forwards normal typing to the terminal but keeps C-c as
+  ;; an Emacs prefix, so C-c C-e (switch to emacs mode for scrolling) works.
+  (add-hook 'window-selection-change-functions
+            (lambda (frame)
+              (with-selected-frame frame
+                (when (derived-mode-p 'eat-mode)
+                  (eat-semi-char-mode))))))
 
 (use-package claude-code-ide
   :straight (:host github :repo "manzaltu/claude-code-ide.el")
