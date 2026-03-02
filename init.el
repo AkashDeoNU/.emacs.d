@@ -105,10 +105,14 @@
 
 (use-package treemacs
   :config
-  (setq treemacs-width 30
-        treemacs-is-never-other-window t)  ; M-j/l won't jump into treemacs
+  (setq treemacs-width 30)
   :bind (("C-c e" . treemacs-select-window)
-         ("C-c E" . treemacs-add-and-display-current-project-exclusively)))
+         ("C-c E" . treemacs-add-and-display-current-project-exclusively)
+         :map treemacs-mode-map
+         ("M-i" . windmove-up)
+         ("M-j" . windmove-left)
+         ("M-k" . windmove-down)
+         ("M-l" . windmove-right)))
 ;;;;;;;;;;;;;
 ;;; MAGIT ;;;
 ;;;;;;;;;;;;;
